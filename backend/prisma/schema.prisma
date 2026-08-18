@@ -1,0 +1,64 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User / Auth ─────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STAFF)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+model Product {
+  id                String   @id @default(cuid())
+  name              String
+  category          String
+  price             Float               // selling price
+  costPrice         Float  @default(0)  // purchase/cost price → used to calculate profit
+  quantity          Int    @default(0)
+  lowStockThreshold Int    @default(10)
+  supplier          String?
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  sales Sale[]
+
+  @@map("products")
+}
+
+// ─── Sales ────────────────────────────────────────────────────────────────────
+
+model Sale {
+  id         String   @id @default(cuid())
+  productId  String
+  quantity   Int
+  totalPrice Float               // selling price × qty
+  totalCost  Float  @default(0)  // cost price × qty
+  profit     Float  @default(0)  // totalPrice − totalCost
+  createdAt  DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("sales")
+}
