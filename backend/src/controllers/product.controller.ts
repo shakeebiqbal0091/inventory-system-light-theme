@@ -33,9 +33,10 @@ export const getOne = async (req: Request, res: Response): Promise<void> => {
 };
 
 // POST /products  (Admin only)
+// POST /products  (Admin only)
 export const create = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, category, price, quantity, lowStockThreshold, supplier, description } = req.body;
+    const { name, category, price, costPrice, quantity, lowStockThreshold, supplier, description } = req.body;
 
     if (!name || !category || price === undefined || quantity === undefined) {
       res.status(400).json({
@@ -48,6 +49,7 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     const product = await ProductService.createProduct({
       name, category,
       price: Number(price),
+      costPrice: costPrice !== undefined ? Number(costPrice) : undefined,   // ← added
       quantity: Number(quantity),
       lowStockThreshold: lowStockThreshold ? Number(lowStockThreshold) : undefined,
       supplier,
@@ -59,6 +61,33 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
+// export const create = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const { name, category, price, quantity, lowStockThreshold, supplier, description } = req.body;
+
+//     if (!name || !category || price === undefined || quantity === undefined) {
+//       res.status(400).json({
+//         success: false,
+//         error: 'name, category, price and quantity are required.',
+//       });
+//       return;
+//     }
+
+//     const product = await ProductService.createProduct({
+//       name, category,
+//       price: Number(price),
+//       quantity: Number(quantity),
+//       lowStockThreshold: lowStockThreshold ? Number(lowStockThreshold) : undefined,
+//       supplier,
+//       description,
+//     });
+
+//     res.status(201).json({ success: true, data: product, message: 'Product created.' });
+//   } catch (error: any) {
+//     res.status(400).json({ success: false, error: error.message });
+//   }
+// };
 
 // PUT /products/:id  (Admin only)
 export const update = async (req: Request, res: Response): Promise<void> => {

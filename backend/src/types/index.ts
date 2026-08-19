@@ -35,6 +35,7 @@ export interface CreateProductInput {
   name: string;
   category: string;
   price: number;
+  costPrice?: number;        // ← added
   quantity: number;
   lowStockThreshold?: number;
   supplier?: string;
