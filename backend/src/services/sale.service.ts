@@ -1,10 +1,8 @@
-// src/services/sale.service.ts
 import { prisma } from '../prisma';
 import { CreateSaleInput } from '../types';
+import { checkAndAlertForProduct } from './alert.service';
 
 const round = (n: number) => Math.round(n * 100) / 100;
-
-// ─── Get All Sales ────────────────────────────────────────────────────────────
 
 export const getAllSales = async () => {
   return prisma.sale.findMany({
@@ -15,20 +13,38 @@ export const getAllSales = async () => {
   });
 };
 
-
-
 // ─── Create Sale (atomic: deduct stock + calculate profit) ────────────────────
-
-import { checkAndAlertForProduct } from './alert.service';   // ← add import
 
 export const createSale = async (input: CreateSaleInput) => {
   const { productId, quantity } = input;
 
   const result = await prisma.$transaction(async (tx) => {
-    // ...existing transaction body unchanged...
+    const product = await tx.product.findUnique({ where: { id: productId } });
+    if (!product) throw new Error('Product not found.');
+
+    const updateResult = await tx.product.updateMany({
+      where: { id: productId, quantity: { gte: quantity } },
+      data: { quantity: { decrement: quantity } },
+    });
+
+    if (updateResult.count === 0) {
+      throw new Error(`Insufficient stock. Available: ${product.quantity}, Requested: ${quantity}`);
+    }
+
+    const updatedProduct = await tx.product.findUnique({ where: { id: productId } });
+
+    const totalPrice = product.price     * quantity;
+    const totalCost  = product.costPrice * quantity;
+    const profit     = totalPrice - totalCost;
+
+    const sale = await tx.sale.create({
+      data: { productId, quantity, totalPrice, totalCost, profit },
+      include: { product: { select: { id: true, name: true, category: true } } },
+    });
+
+    return { sale, updatedProduct };
   });
 
-  // Fire-and-forget: don't block the sale response on email sending
   checkAndAlertForProduct(productId).catch((err) =>
     console.error('Low-stock alert check failed:', err)
   );
@@ -36,7 +52,8 @@ export const createSale = async (input: CreateSaleInput) => {
   return result;
 };
 
-// ─── Dashboard Stats ──────────────────────────────────────────────────────────
+// ─── Dashboard Stats ────────────────────────────────────────────────────────── 
+// (keep everything below exactly as it already is — unchanged)
 
 export const getDashboardStats = async () => {
   const [totalProducts, totalSales, aggregates, allProducts, recentSales, allSales] =

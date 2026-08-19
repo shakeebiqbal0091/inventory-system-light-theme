@@ -1,18 +1,14 @@
 // src/index.ts
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';                    // ← added
-import rateLimit from 'express-rate-limit';      // ← added
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import { startLowStockAlertJob } from './jobs/lowStockAlert.job';   // ← add import
-
-// ...after app.listen(...) block, or right before it...
-startLowStockAlertJob();
-
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
 import saleRoutes from './routes/sale.routes';
 import dashboardRoutes from './routes/dashboard.routes';
+import { startLowStockAlertJob } from './jobs/lowStockAlert.job';
 
 dotenv.config();
 
@@ -73,6 +69,7 @@ app.listen(PORT, () => {
   console.log(`\n🚀 Server running on http://localhost:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV ?? 'development'}`);
   console.log(`🔗 Health: http://localhost:${PORT}/api/health\n`);
+  startLowStockAlertJob();   // ← moved here: after env vars loaded and server is actually up
 });
 
 export default app;
