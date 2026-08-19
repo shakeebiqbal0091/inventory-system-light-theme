@@ -56,21 +56,6 @@ export const createProduct = async (input: CreateProductInput) => {
   return { ...product, isLowStock: product.quantity <= product.lowStockThreshold };
 };
 
-// export const createProduct = async (input: CreateProductInput) => {
-//   const product = await prisma.product.create({
-//     data: {
-//       name: input.name,
-//       category: input.category,
-//       price: input.price,
-//       quantity: input.quantity,
-//       lowStockThreshold: input.lowStockThreshold ?? 10,
-//       supplier: input.supplier,
-//       description: input.description,
-//     },
-//   });
-
-//   return { ...product, isLowStock: product.quantity <= product.lowStockThreshold };
-// };
 
 // ─── Update Product ───────────────────────────────────────────────────────────
 
