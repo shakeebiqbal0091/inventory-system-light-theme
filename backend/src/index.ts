@@ -4,6 +4,10 @@ import cors from 'cors';
 import helmet from 'helmet';                    // ← added
 import rateLimit from 'express-rate-limit';      // ← added
 import dotenv from 'dotenv';
+import { startLowStockAlertJob } from './jobs/lowStockAlert.job';   // ← add import
+
+// ...after app.listen(...) block, or right before it...
+startLowStockAlertJob();
 
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';

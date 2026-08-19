@@ -33,12 +33,13 @@ model Product {
   id                String   @id @default(cuid())
   name              String
   category          String
-  price             Float               // selling price
-  costPrice         Float  @default(0)  // purchase/cost price → used to calculate profit
+  price             Float
+  costPrice         Float  @default(0)
   quantity          Int    @default(0)
   lowStockThreshold Int    @default(10)
   supplier          String?
   description       String?
+  lastAlertedAt     DateTime?          // ← added: null = no active alert, set = alert already sent
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

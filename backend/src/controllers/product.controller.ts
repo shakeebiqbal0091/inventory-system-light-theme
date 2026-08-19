@@ -32,10 +32,6 @@ export const getOne = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-
-
-// POST /products  (Admin only)
-
 // POST /products  (Admin only)
 export const create = async (req: Request, res: Response): Promise<void> => {
   try {

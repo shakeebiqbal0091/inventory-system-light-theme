@@ -15,72 +15,26 @@ export const getAllSales = async () => {
   });
 };
 
+
+
 // ─── Create Sale (atomic: deduct stock + calculate profit) ────────────────────
+
+import { checkAndAlertForProduct } from './alert.service';   // ← add import
 
 export const createSale = async (input: CreateSaleInput) => {
   const { productId, quantity } = input;
 
-  return prisma.$transaction(async (tx) => {
-    // Fetch product for pricing (name/price/cost), but the stock check
-    // happens atomically in the update below, not here.
-    const product = await tx.product.findUnique({ where: { id: productId } });
-    if (!product) throw new Error('Product not found.');
-
-    // Atomic check-and-decrement: only succeeds if enough stock exists
-    const result = await tx.product.updateMany({
-      where: { id: productId, quantity: { gte: quantity } },
-      data: { quantity: { decrement: quantity } },
-    });
-
-    if (result.count === 0) {
-      throw new Error(`Insufficient stock. Available: ${product.quantity}, Requested: ${quantity}`);
-    }
-
-    const updatedProduct = await tx.product.findUnique({ where: { id: productId } });
-
-    const totalPrice = product.price     * quantity;
-    const totalCost  = product.costPrice * quantity;
-    const profit     = totalPrice - totalCost;
-
-    const sale = await tx.sale.create({
-      data: { productId, quantity, totalPrice, totalCost, profit },
-      include: { product: { select: { id: true, name: true, category: true } } },
-    });
-
-    return { sale, updatedProduct };
+  const result = await prisma.$transaction(async (tx) => {
+    // ...existing transaction body unchanged...
   });
+
+  // Fire-and-forget: don't block the sale response on email sending
+  checkAndAlertForProduct(productId).catch((err) =>
+    console.error('Low-stock alert check failed:', err)
+  );
+
+  return result;
 };
-
-
-// export const createSale = async (input: CreateSaleInput) => {
-//   const { productId, quantity } = input;
-
-//   return prisma.$transaction(async (tx) => {
-//     const product = await tx.product.findUnique({ where: { id: productId } });
-//     if (!product) throw new Error('Product not found.');
-//     if (product.quantity < quantity) {
-//       throw new Error(`Insufficient stock. Available: ${product.quantity}, Requested: ${quantity}`);
-//     }
-
-//     const updatedProduct = await tx.product.update({
-//       where: { id: productId },
-//       data: { quantity: { decrement: quantity } },
-//     });
-
-//     const totalPrice = product.price     * quantity;  // Revenue
-//     const totalCost  = product.costPrice * quantity;  // What it cost us
-//     const profit     = totalPrice - totalCost;        // Gross profit
-
-//     const sale = await tx.sale.create({
-//       data: { productId, quantity, totalPrice, totalCost, profit },
-//       include: { product: { select: { id: true, name: true, category: true } } },
-//     });
-
-//     return { sale, updatedProduct };
-//   });
-// };
-
-
 
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 

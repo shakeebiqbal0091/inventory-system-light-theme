@@ -59,8 +59,9 @@ export const createProduct = async (input: CreateProductInput) => {
 
 // ─── Update Product ───────────────────────────────────────────────────────────
 
+import { checkAndAlertForProduct } from './alert.service';   // ← add import
+
 export const updateProduct = async (id: string, input: UpdateProductInput) => {
-  // Check product exists
   const existing = await prisma.product.findUnique({ where: { id } });
   if (!existing) throw new Error('Product not found.');
 
@@ -68,6 +69,12 @@ export const updateProduct = async (id: string, input: UpdateProductInput) => {
     where: { id },
     data: input,
   });
+
+  if (input.quantity !== undefined) {
+    checkAndAlertForProduct(id).catch((err) =>
+      console.error('Low-stock alert check failed:', err)
+    );
+  }
 
   return { ...product, isLowStock: product.quantity <= product.lowStockThreshold };
 };
