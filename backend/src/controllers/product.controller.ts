@@ -32,30 +32,14 @@ export const getOne = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+
+
 // POST /products  (Admin only)
+
 // POST /products  (Admin only)
 export const create = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, category, price, costPrice, quantity, lowStockThreshold, supplier, description } = req.body;
-
-    if (!name || !category || price === undefined || quantity === undefined) {
-      res.status(400).json({
-        success: false,
-        error: 'name, category, price and quantity are required.',
-      });
-      return;
-    }
-
-    const product = await ProductService.createProduct({
-      name, category,
-      price: Number(price),
-      costPrice: costPrice !== undefined ? Number(costPrice) : undefined,   // ← added
-      quantity: Number(quantity),
-      lowStockThreshold: lowStockThreshold ? Number(lowStockThreshold) : undefined,
-      supplier,
-      description,
-    });
-
+    const product = await ProductService.createProduct(req.body);
     res.status(201).json({ success: true, data: product, message: 'Product created.' });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });

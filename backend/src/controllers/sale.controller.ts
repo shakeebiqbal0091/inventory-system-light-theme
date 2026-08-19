@@ -15,23 +15,7 @@ export const getAll = async (_req: Request, res: Response): Promise<void> => {
 // POST /sales
 export const create = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { productId, quantity } = req.body;
-
-    if (!productId || !quantity) {
-      res.status(400).json({ success: false, error: 'productId and quantity are required.' });
-      return;
-    }
-
-    if (Number(quantity) <= 0) {
-      res.status(400).json({ success: false, error: 'Quantity must be greater than 0.' });
-      return;
-    }
-
-    const result = await SaleService.createSale({
-      productId,
-      quantity: Number(quantity),
-    });
-
+    const result = await SaleService.createSale(req.body);
     res.status(201).json({
       success: true,
       data: result,
@@ -41,7 +25,6 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ success: false, error: error.message });
   }
 };
-
 // GET /dashboard/stats
 export const getDashboard = async (_req: Request, res: Response): Promise<void> => {
   try {
