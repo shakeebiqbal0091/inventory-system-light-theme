@@ -7,16 +7,14 @@ import { Role } from '@prisma/client';
 
 // ─── Register ─────────────────────────────────────────────────────────────────
 
-export const registerUser = async (input: RegisterInput) => {
-  const { name, email, password, role } = input;
+export const registerUser = async (input: Omit<RegisterInput, 'role'>) => {
+  const { name, email, password } = input;
 
-  // Check if email already exists
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     throw new Error('Email already registered.');
   }
 
-  // Hash password with salt rounds = 12
   const hashedPassword = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
@@ -24,7 +22,7 @@ export const registerUser = async (input: RegisterInput) => {
       name,
       email,
       password: hashedPassword,
-      role: role ?? Role.STAFF,
+      role: Role.STAFF,   // ← always STAFF on self-registration, never client-controlled
     },
     select: {
       id: true,

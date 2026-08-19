@@ -5,7 +5,7 @@ import * as AuthService from '../services/auth.service';
 // POST /auth/register
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;   // ← removed `role`
 
     if (!name || !email || !password) {
       res.status(400).json({ success: false, error: 'Name, email and password are required.' });
@@ -17,7 +17,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const result = await AuthService.registerUser({ name, email, password, role });
+    const result = await AuthService.registerUser({ name, email, password }); // ← no role passed
 
     res.status(201).json({
       success: true,
