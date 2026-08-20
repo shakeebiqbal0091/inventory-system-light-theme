@@ -18,10 +18,10 @@ const EMPTY = { name:'', category:'', costPrice:'', price:'', quantity:'', lowSt
 
 export default function ProductsPage() {
   const { isAdmin } = useAuth();
-  const searchParams = useSearchParams();  
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('search') ?? '');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading]   = useState(true);
-  const [search, setSearch]     = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [form, setForm] = useState(EMPTY);

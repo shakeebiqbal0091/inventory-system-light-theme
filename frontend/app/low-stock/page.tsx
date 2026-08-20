@@ -44,7 +44,7 @@ export default function LowStockPage() {
             const pct = Math.round((p.quantity / p.lowStockThreshold) * 100);
             const crit = p.quantity === 0 || p.quantity <= p.lowStockThreshold / 2;
             return (
-              <div key={p.id} className="card" style={{ border: '1px solid rgba(239,68,68,0.25)', backgroundColor: 'var(--bg-card)' }}>
+              <div key={p.id} className="card" style={{ border: '1px solid #e4e4e7', backgroundColor: 'var(--bg-card)' }}>
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{p.name}</h3>
