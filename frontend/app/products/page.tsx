@@ -1,6 +1,7 @@
 'use client';
 // app/products/page.tsx
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';  
 import AppLayout from '@/components/layout/AppLayout';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -17,6 +18,7 @@ const EMPTY = { name:'', category:'', costPrice:'', price:'', quantity:'', lowSt
 
 export default function ProductsPage() {
   const { isAdmin } = useAuth();
+  const searchParams = useSearchParams();  
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
