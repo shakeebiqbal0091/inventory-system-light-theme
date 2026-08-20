@@ -13,12 +13,12 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light'); 
 
   // Load saved preference on mount
   useEffect(() => {
     const saved = localStorage.getItem('theme') as Theme | null;
-    const preferred = saved ?? 'dark';
+    const preferred = saved ?? 'light';
     setTheme(preferred);
     document.documentElement.setAttribute('data-theme', preferred);
   }, []);

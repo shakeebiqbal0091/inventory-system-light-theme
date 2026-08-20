@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import StatCard from '@/components/ui/StatCard';
+import Header from '@/components/layout/Header';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { Package, ShoppingCart, DollarSign, AlertTriangle, TrendingUp, TrendingDown, Percent } from 'lucide-react';
@@ -61,27 +62,21 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-heading)' }}>
-          Good {getGreeting()}, {user?.name?.split(' ')[0]} 👋
-        </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Here's your business performance at a glance</p>
-      </div>
+<Header
+  title={`Good ${getGreeting()}, ${user?.name?.split(' ')[0]} 👋`}
+  subtitle="Here's your business performance at a glance"
+/>
 
       {/* KPI Row 1 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
         <StatCard title="Total Revenue"   value={fmt(stats?.totalRevenue ?? 0)}    icon={<DollarSign className="w-5 h-5" />} trend="Total sales income"    color="indigo" />
         <StatCard title="Total Cost"      value={fmt(stats?.totalCost ?? 0)}       icon={<TrendingDown className="w-5 h-5" />} trend="Cost of goods sold"  color="amber" />
         <StatCard title="Gross Profit"    value={fmt(stats?.totalProfit ?? 0)}     icon={<TrendingUp className="w-5 h-5" />} trend="Revenue minus cost"    color={(stats?.totalProfit ?? 0) >= 0 ? 'green' : 'red'} />
-        <StatCard title="Profit Margin"   value={`${stats?.profitMarginPct ?? 0}%`} icon={<Percent className="w-5 h-5" />} trend="Gross margin percentage" color={(stats?.totalProfit ?? 0) >= 0 ? 'green' : 'red'} />
-      </div>
-
-      {/* KPI Row 2 */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <StatCard title="Profit Margin" value={`${stats?.profitMarginPct ?? 0}%`} icon={<Percent className="w-5 h-5" />} ringPercent={stats?.profitMarginPct ?? 0} color={(stats?.totalProfit ?? 0) >= 0 ? 'green' : 'red'} />
+        <StatCard title="Stock Health" value={stats?.lowStockCount ? `${stats.lowStockCount} low` : 'All healthy'} icon={<AlertTriangle className="w-5 h-5" />} ringPercent={stats?.totalProducts ? Math.round(((stats.totalProducts - stats.lowStockCount) / stats.totalProducts) * 100) : 100} color={stats?.lowStockCount ? 'red' : 'green'}/>
         <StatCard title="Total Products"      value={stats?.totalProducts ?? 0} icon={<Package className="w-5 h-5" />}      color="indigo" />
         <StatCard title="Total Transactions"  value={stats?.totalSales ?? 0}    icon={<ShoppingCart className="w-5 h-5" />} color="indigo" />
-        <StatCard title="Low Stock Alerts"    value={stats?.lowStockCount ?? 0} icon={<AlertTriangle className="w-5 h-5" />}
-          trend={stats?.lowStockCount ? 'Needs attention' : 'All good'} color={stats?.lowStockCount ? 'red' : 'green'} />
+        <StatCard title="Low Stock Alerts"    value={stats?.lowStockCount ?? 0} icon={<AlertTriangle className="w-5 h-5" />} trend={stats?.lowStockCount ? 'Needs attention' : 'All good'} color={stats?.lowStockCount ? 'red' : 'green'} />
       </div>
 
       {/* Charts */}
