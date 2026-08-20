@@ -76,7 +76,6 @@ export default function DashboardPage() {
         <StatCard title="Stock Health" value={stats?.lowStockCount ? `${stats.lowStockCount} low` : 'All healthy'} icon={<AlertTriangle className="w-5 h-5" />} ringPercent={stats?.totalProducts ? Math.round(((stats.totalProducts - stats.lowStockCount) / stats.totalProducts) * 100) : 100} color={stats?.lowStockCount ? 'red' : 'green'}/>
         <StatCard title="Total Products"      value={stats?.totalProducts ?? 0} icon={<Package className="w-5 h-5" />}      color="indigo" />
         <StatCard title="Total Transactions"  value={stats?.totalSales ?? 0}    icon={<ShoppingCart className="w-5 h-5" />} color="indigo" />
-        <StatCard title="Low Stock Alerts"    value={stats?.lowStockCount ?? 0} icon={<AlertTriangle className="w-5 h-5" />} trend={stats?.lowStockCount ? 'Needs attention' : 'All good'} color={stats?.lowStockCount ? 'red' : 'green'} />
       </div>
 
       {/* Charts */}
