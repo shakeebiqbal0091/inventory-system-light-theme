@@ -95,15 +95,7 @@ export default function Sidebar() {
           </div>
         </button>
 
-        {/* User card */}
-        <div style={{ backgroundColor: 'var(--bg-hover)' }} className="px-3 py-2.5 rounded-lg">
-          <p className="text-sm font-medium truncate" style={{ color: 'var(--text-heading)' }}>{user?.name}</p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className={isAdmin ? 'badge-info' : 'badge-success'}>{user?.role}</span>
-            <span className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user?.email}</span>
-          </div>
-        </div>
-
+      
         {/* Logout */}
         <button
           onClick={logout}
