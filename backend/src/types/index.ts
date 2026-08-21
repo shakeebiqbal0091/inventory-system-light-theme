@@ -44,6 +44,28 @@ export interface CreateProductInput {
 
 export interface UpdateProductInput extends Partial<CreateProductInput> {}
 
+export interface CreateSupplierInput {
+  companyName: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  paymentTerms?: string;
+  leadTimeDays?: number;
+}
+export interface UpdateSupplierInput extends Partial<CreateSupplierInput> {}
+
+export interface CreateCustomerInput {
+  name: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  shippingAddress?: string;
+  billingAddress?: string;
+}
+export interface UpdateCustomerInput extends Partial<CreateCustomerInput> {}
+
+
 // ─── Sales ────────────────────────────────────────────────────────────────────
 
 export interface CreateSaleInput {

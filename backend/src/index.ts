@@ -9,6 +9,8 @@ import productRoutes from './routes/product.routes';
 import saleRoutes from './routes/sale.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import { startLowStockAlertJob } from './jobs/lowStockAlert.job';
+import supplierRoutes from './routes/supplier.routes'; 
+import customerRoutes from './routes/customer.routes';
 
 dotenv.config();
 
@@ -50,6 +52,9 @@ app.use('/api/auth', authLimiter, authRoutes);   // ← tightest limit on login/
 app.use('/api/products', apiLimiter, productRoutes);
 app.use('/api/sales', apiLimiter, saleRoutes);
 app.use('/api/dashboard', apiLimiter, dashboardRoutes);
+app.use('/api/suppliers', apiLimiter, supplierRoutes);
+app.use('/api/customers', apiLimiter, customerRoutes);
+
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 

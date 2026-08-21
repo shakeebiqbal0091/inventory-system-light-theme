@@ -17,7 +17,7 @@ export default function LowStockPage() {
 
   return (
     <AppLayout>
-      <div className="mb-6">
+      <div className="mb-5">
         <h1 className="text-2xl font-bold flex items-center gap-3" style={{ color: 'var(--text-heading)' }}>
           <AlertTriangle className="w-6 h-6" style={{ color: 'var(--warning)' }} />
           Low Stock Alerts

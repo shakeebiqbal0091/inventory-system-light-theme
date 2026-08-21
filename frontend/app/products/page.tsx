@@ -60,7 +60,7 @@ export default function ProductsPage() {
 
   return (
     <AppLayout>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-heading)' }}>Products</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{products.length} total products</p>
