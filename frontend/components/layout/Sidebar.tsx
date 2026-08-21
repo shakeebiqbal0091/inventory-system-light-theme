@@ -140,6 +140,7 @@ import {
   ChevronRight,
   Settings,
   CircleUserRound,
+  Truck,
 } from 'lucide-react';
 
 import clsx from 'clsx';
@@ -165,7 +166,11 @@ const navItems = [
     label: 'Contacts',
     icon: Users,
   },
-
+  {
+    href: '/purchase-orders',
+    label: 'Purchase Orders',
+    icon: Truck,
+  },
   {
     href: '/low-stock',
     label: 'Low Stock',
