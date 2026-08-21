@@ -11,6 +11,7 @@ import dashboardRoutes from './routes/dashboard.routes';
 import { startLowStockAlertJob } from './jobs/lowStockAlert.job';
 import supplierRoutes from './routes/supplier.routes'; 
 import customerRoutes from './routes/customer.routes';
+import settingsRoutes from './routes/settings.routes';
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use('/api/sales', apiLimiter, saleRoutes);
 app.use('/api/dashboard', apiLimiter, dashboardRoutes);
 app.use('/api/suppliers', apiLimiter, supplierRoutes);
 app.use('/api/customers', apiLimiter, customerRoutes);
+app.use('/api/settings', apiLimiter, settingsRoutes);
 
 
 // ─── Health Check ─────────────────────────────────────────────────────────────

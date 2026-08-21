@@ -24,26 +24,28 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  settings UserSettings?
+
   @@map("users")
 }
 
 // ─── Inventory ────────────────────────────────────────────────────────────────
 
 model Product {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   name              String
   category          String
   price             Float
-  costPrice         Float  @default(0)
-  quantity          Int    @default(0)
-  lowStockThreshold Int    @default(10)
+  costPrice         Float     @default(0)
+  quantity          Int       @default(0)
+  lowStockThreshold Int       @default(10)
   supplier          String?
   description       String?
-  lastAlertedAt     DateTime?          // ← added: null = no active alert, set = alert already sent
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  supplierId String?
-  supplierRef Supplier? @relation(fields: [supplierId], references: [id])
+  lastAlertedAt     DateTime? // ← added: null = no active alert, set = alert already sent
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  supplierId        String?
+  supplierRef       Supplier? @relation(fields: [supplierId], references: [id])
 
   sales Sale[]
 
@@ -56,16 +58,15 @@ model Sale {
   id         String   @id @default(cuid())
   productId  String
   quantity   Int
-  totalPrice Float               // selling price × qty
-  totalCost  Float  @default(0)  // cost price × qty
-  profit     Float  @default(0)  // totalPrice − totalCost
+  totalPrice Float // selling price × qty
+  totalCost  Float    @default(0) // cost price × qty
+  profit     Float    @default(0) // totalPrice − totalCost
   createdAt  DateTime @default(now())
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("sales")
 }
-
 
 model Supplier {
   id            String   @id @default(cuid())
@@ -74,7 +75,7 @@ model Supplier {
   email         String?
   phone         String?
   address       String?
-  paymentTerms  String?    // e.g. "Net 30"
+  paymentTerms  String? // e.g. "Net 30"
   leadTimeDays  Int?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -96,4 +97,29 @@ model Customer {
   updatedAt       DateTime @updatedAt
 
   @@map("customers")
+}
+
+model UserSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  currency          String @default("USD")
+  lowStockThreshold Int    @default(10)
+  dateFormat        String @default("MM/DD/YYYY")
+
+  businessName    String?
+  businessEmail   String?
+  businessPhone   String?
+  businessAddress String?
+
+  lowStockAlerts     Boolean @default(true)
+  salesNotifications Boolean @default(true)
+  emailNotifications Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
 }

@@ -146,10 +146,20 @@ export default function ContactsPage() {
         ))}
       </div>
 
-      <div className="relative mb-5">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-        <input className="input pl-9" placeholder={`Search ${tab}...`} value={search} onChange={e => setSearch(e.target.value)} />
-      </div>
+      <div className="relative mb-5 gap-3">
+  <Search
+    className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4"
+    style={{ color: 'var(--text-muted)' }}
+  />
+
+  <input
+    prefix="search"
+    className="input pr-9"
+    placeholder="Search Suppliers..."
+    value={search}
+    onChange={e => setSearch(e.target.value)}
+  />
+</div>
 
       <div className="card p-0 overflow-hidden">
         {loading ? (
