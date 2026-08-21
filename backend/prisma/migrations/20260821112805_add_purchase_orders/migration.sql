@@ -1,0 +1,43 @@
+-- CreateEnum
+CREATE TYPE "POStatus" AS ENUM ('DRAFT', 'SENT', 'PARTIALLY_RECEIVED', 'COMPLETED', 'CANCELLED');
+
+-- CreateTable
+CREATE TABLE "purchase_orders" (
+    "id" TEXT NOT NULL,
+    "poNumber" TEXT NOT NULL,
+    "supplierId" TEXT NOT NULL,
+    "orderDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expectedDate" TIMESTAMP(3),
+    "status" "POStatus" NOT NULL DEFAULT 'DRAFT',
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "purchase_orders_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "purchase_order_items" (
+    "id" TEXT NOT NULL,
+    "purchaseOrderId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "quantityOrdered" INTEGER NOT NULL,
+    "quantityReceived" INTEGER NOT NULL DEFAULT 0,
+    "unitCost" DOUBLE PRECISION NOT NULL,
+    "damagedCount" INTEGER NOT NULL DEFAULT 0,
+    "qualityNotes" TEXT,
+
+    CONSTRAINT "purchase_order_items_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "purchase_orders_poNumber_key" ON "purchase_orders"("poNumber");
+
+-- AddForeignKey
+ALTER TABLE "purchase_orders" ADD CONSTRAINT "purchase_orders_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "suppliers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "purchase_order_items" ADD CONSTRAINT "purchase_order_items_purchaseOrderId_fkey" FOREIGN KEY ("purchaseOrderId") REFERENCES "purchase_orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "purchase_order_items" ADD CONSTRAINT "purchase_order_items_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

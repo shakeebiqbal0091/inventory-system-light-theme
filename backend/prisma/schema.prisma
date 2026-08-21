@@ -29,6 +29,45 @@ model User {
   @@map("users")
 }
 
+enum POStatus {
+  DRAFT
+  SENT
+  PARTIALLY_RECEIVED
+  COMPLETED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id           String   @id @default(cuid())
+  poNumber     String   @unique
+  supplierId   String
+  supplier     Supplier @relation(fields: [supplierId], references: [id])
+  orderDate    DateTime @default(now())
+  expectedDate DateTime?
+  status       POStatus @default(DRAFT)
+  notes        String?
+  items        PurchaseOrderItem[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id               String        @id @default(cuid())
+  purchaseOrderId  String
+  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product       @relation(fields: [productId], references: [id])
+  quantityOrdered  Int
+  quantityReceived Int @default(0)
+  unitCost         Float
+  damagedCount     Int @default(0)
+  qualityNotes     String?
+
+  @@map("purchase_order_items")
+}
+
 // ─── Inventory ────────────────────────────────────────────────────────────────
 
 model Product {
@@ -41,6 +80,7 @@ model Product {
   lowStockThreshold Int       @default(10)
   supplier          String?
   description       String?
+  purchaseOrderItems  PurchaseOrderItem[]   // ← add
   lastAlertedAt     DateTime? // ← added: null = no active alert, set = alert already sent
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -75,6 +115,7 @@ model Supplier {
   email         String?
   phone         String?
   address       String?
+  purchaseOrders PurchaseOrder[]   // ← add
   paymentTerms  String? // e.g. "Net 30"
   leadTimeDays  Int?
   createdAt     DateTime @default(now())

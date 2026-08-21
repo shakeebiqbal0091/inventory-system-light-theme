@@ -12,6 +12,7 @@ import { startLowStockAlertJob } from './jobs/lowStockAlert.job';
 import supplierRoutes from './routes/supplier.routes'; 
 import customerRoutes from './routes/customer.routes';
 import settingsRoutes from './routes/settings.routes';
+import purchaseOrderRoutes from './routes/purchaseOrder.routes';
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.use('/api/dashboard', apiLimiter, dashboardRoutes);
 app.use('/api/suppliers', apiLimiter, supplierRoutes);
 app.use('/api/customers', apiLimiter, customerRoutes);
 app.use('/api/settings', apiLimiter, settingsRoutes);
+app.use('/api/purchase-orders', apiLimiter, purchaseOrderRoutes);
 
 
 // ─── Health Check ─────────────────────────────────────────────────────────────

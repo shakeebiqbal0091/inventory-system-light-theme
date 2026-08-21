@@ -65,6 +65,36 @@ export interface CreateCustomerInput {
 }
 export interface UpdateCustomerInput extends Partial<CreateCustomerInput> {}
 
+export interface CreatePurchaseOrderInput {
+  supplierId: string;
+  expectedDate?: string;
+  notes?: string;
+  items: { productId: string; quantityOrdered: number; unitCost: number }[];
+}
+
+export interface UpdatePOStatusInput {
+  status: 'SENT' | 'CANCELLED';
+}
+
+export interface ReceiveStockInput {
+  items: { itemId: string; quantityReceived: number; damagedCount?: number; qualityNotes?: string }[];
+}
+
+// ─── PurchaseOrder ────────────────────────────────────────────────────────────────────
+export interface CreatePurchaseOrderInput {
+  supplierId: string;
+  expectedDate?: string;
+  notes?: string;
+  items: { productId: string; quantityOrdered: number; unitCost: number }[];
+}
+
+export interface UpdatePOStatusInput {
+  status: 'SENT' | 'CANCELLED';
+}
+
+export interface ReceiveStockInput {
+  items: { itemId: string; quantityReceived: number; damagedCount?: number; qualityNotes?: string }[];
+}
 
 // ─── Sales ────────────────────────────────────────────────────────────────────
 
