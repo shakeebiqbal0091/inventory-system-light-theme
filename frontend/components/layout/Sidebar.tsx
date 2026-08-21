@@ -172,21 +172,6 @@ const navItems = [
     icon: AlertTriangle,
     alert: true,
   },
-  {
-    href: '/Sales & Orders',
-    label: 'Sales & Orders',
-    icon: Users,
-  },
-  {
-    href: '/Multi-warehouse stock',
-    label: 'Multi-warehouse stock',
-    icon: Users,
-  },
-  {
-    href: '/Reports & Analytics',
-    label: 'Reports & Analytics',
-    icon: Users,
-  },
 ];
 
 export default function Sidebar() {
