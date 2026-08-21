@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useTheme } from '@/lib/theme-context';
 import {
   LayoutDashboard, Package, ShoppingCart, AlertTriangle,
-  LogOut, ChevronRight, Package2, Sun, Moon,
+  Users, LogOut, ChevronRight, Package2, Sun, Moon,      // ← added Users
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -14,6 +14,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/products',  label: 'Products',  icon: Package },
   { href: '/sales',     label: 'Sales',     icon: ShoppingCart },
+  { href: '/contacts',  label: 'Contacts',  icon: Users },      // ← added
   { href: '/low-stock', label: 'Low Stock', icon: AlertTriangle, alert: true },
 ];
 
