@@ -94,31 +94,33 @@ export const receiveStock = async (id: string, input: ReceiveStockInput) => {
         });
         touchedProductIds.push(item.productId);
       }
-      // ADD THIS HERE
+
       if (goodQty > 0 && incoming.warehouseId) {
-        await incrementStockLocation(tx,item.productId,incoming.warehouseId,goodQty);
+        await incrementStockLocation(tx, item.productId, incoming.warehouseId, goodQty);
       }
+    }   // ← ADDED: this closes the `for` loop — without it, everything below ran per-item instead of once
 
     // Recompute PO status from the fresh item state
     const updatedItems = await tx.purchaseOrderItem.findMany({ where: { purchaseOrderId: id } });
-  const allComplete = updatedItems.every((i) => i.quantityReceived >= i.quantityOrdered);
-  const anyReceived = updatedItems.some((i) => i.quantityReceived > 0);
+    const allComplete = updatedItems.every((i) => i.quantityReceived >= i.quantityOrdered);
+    const anyReceived = updatedItems.some((i) => i.quantityReceived > 0);
 
-  const newStatus = allComplete ? 'COMPLETED' : anyReceived ? 'PARTIALLY_RECEIVED' : po.status;
+    const newStatus = allComplete ? 'COMPLETED' : anyReceived ? 'PARTIALLY_RECEIVED' : po.status;
 
-  const updatedPO = await tx.purchaseOrder.update({
-    where: { id },
-    data: { status: newStatus },
-    include: { items: true, supplier: { select: { companyName: true } } },
+    const updatedPO = await tx.purchaseOrder.update({
+      where: { id },
+      data: { status: newStatus },
+      include: { items: true, supplier: { select: { companyName: true } } },
+    });
+
+    return { updatedPO, touchedProductIds };
   });
 
-  return { updatedPO, touchedProductIds };
-});
 
-// Restocking may clear an active low-stock alert — check after commit
-result.touchedProductIds.forEach((pid) =>
-  checkAndAlertForProduct(pid).catch((err) => console.error('Low-stock alert check failed:', err))
-);
+  // Restocking may clear an active low-stock alert — check after commit
+  result.touchedProductIds.forEach((pid) =>
+    checkAndAlertForProduct(pid).catch((err) => console.error('Low-stock alert check failed:', err))
+  );
 
-return result.updatedPO;
+  return result.updatedPO;
 };
