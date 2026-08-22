@@ -54,3 +54,26 @@ export const sendLowStockAlert = async (recipientEmails: string[], items: LowSto
     console.error('Failed to send low-stock alert email:', error);
   }
 };
+
+export const sendWeeklySummaryEmail = async (recipientEmails: string[], summaryText: string) => {
+  if (recipientEmails.length === 0) return;
+
+  const paragraphs = summaryText.split('\n\n').map(p => `<p style="margin:0 0 12px;">${p}</p>`).join('');
+
+  const html = `
+    <h2>📊 Your Weekly Business Summary</h2>
+    ${paragraphs}
+    <p style="color:#888;font-size:12px;margin-top:20px;">Generated automatically from your Inventory Pro data.</p>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM ?? 'Inventory Pro <alerts@inventorypro.app>',
+      to: recipientEmails.join(','),
+      subject: `📊 Your Weekly Business Summary`,
+      html,
+    });
+  } catch (error) {
+    console.error('Failed to send weekly summary email:', error);
+  }
+};

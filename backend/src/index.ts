@@ -17,6 +17,8 @@ import salesOrderRoutes from './routes/salesOrder.routes';   // ← add with oth
 import warehouseRoutes from './routes/warehouse.routes';
 import stockLocationRoutes from './routes/stockLocation.routes';
 import reportRoutes from './routes/report.routes';
+import aiSummaryRoutes from './routes/aiSummary.routes';
+import { startWeeklySummaryJob } from './jobs/weeklySummary.job';
 
 dotenv.config();
 
@@ -66,6 +68,7 @@ app.use('/api/sales-orders', apiLimiter, salesOrderRoutes);   // ← add with ot
 app.use('/api/warehouses', apiLimiter, warehouseRoutes);
 app.use('/api/stock-locations', apiLimiter, stockLocationRoutes);
 app.use('/api/reports', apiLimiter, reportRoutes);
+app.use('/api/ai-summary', apiLimiter, aiSummaryRoutes);
 
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
@@ -87,6 +90,7 @@ app.listen(PORT, () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV ?? 'development'}`);
   console.log(`🔗 Health: http://localhost:${PORT}/api/health\n`);
   startLowStockAlertJob();   // ← moved here: after env vars loaded and server is actually up
+  startWeeklySummaryJob();
 });
 
 export default app;
