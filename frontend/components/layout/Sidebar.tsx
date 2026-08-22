@@ -171,6 +171,9 @@ const navItems = [
     label: 'Purchase Orders',
     icon: Truck,
   },
+  { href: '/sales-orders',
+    label: 'Sales Orders',
+    icon: Package },
   {
     href: '/low-stock',
     label: 'Low Stock',
