@@ -141,6 +141,8 @@ import {
   Settings,
   CircleUserRound,
   Truck,
+  Warehouse,
+  MapPin,
 } from 'lucide-react';
 
 import clsx from 'clsx';
@@ -179,6 +181,16 @@ const navItems = [
     label: 'Low Stock',
     icon: AlertTriangle,
     alert: true,
+  },
+  {
+    href: '/warehouses',
+    label: 'Warehouses',
+    icon: Warehouse,
+  },
+  {
+    href: '/stock-locations',
+    label: 'Stock by Location',
+    icon: MapPin,
   },
 ];
 
