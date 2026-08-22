@@ -24,6 +24,7 @@ export const receiveStockSchema = z.object({
       quantityReceived: z.coerce.number().int().min(0),
       damagedCount: z.coerce.number().int().min(0).optional(),
       qualityNotes: z.string().trim().optional(),
+      warehouseId: z.string().optional(),   // ← added, optional
     })
   ).min(1, 'At least one item is required.'),
 });

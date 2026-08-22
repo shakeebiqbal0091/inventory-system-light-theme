@@ -14,6 +14,8 @@ import customerRoutes from './routes/customer.routes';
 import settingsRoutes from './routes/settings.routes';
 import purchaseOrderRoutes from './routes/purchaseOrder.routes';
 import salesOrderRoutes from './routes/salesOrder.routes';   // ← add with other imports
+import warehouseRoutes from './routes/warehouse.routes';
+import stockLocationRoutes from './routes/stockLocation.routes';
 
 
 dotenv.config();
@@ -61,6 +63,8 @@ app.use('/api/customers', apiLimiter, customerRoutes);
 app.use('/api/settings', apiLimiter, settingsRoutes);
 app.use('/api/purchase-orders', apiLimiter, purchaseOrderRoutes);
 app.use('/api/sales-orders', apiLimiter, salesOrderRoutes);   // ← add with other app.use lines
+app.use('/api/warehouses', apiLimiter, warehouseRoutes);
+app.use('/api/stock-locations', apiLimiter, stockLocationRoutes);
 
 
 // ─── Health Check ─────────────────────────────────────────────────────────────

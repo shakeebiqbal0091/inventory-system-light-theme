@@ -57,6 +57,22 @@ export interface CreateReturnInput {
 }
 
 
+// ─── CreateWarehouseInput ─────────────────────────────────────────────────────────────────
+
+export interface CreateWarehouseInput {
+  name: string;
+  address?: string;
+}
+export interface UpdateWarehouseInput extends Partial<CreateWarehouseInput> {}
+
+export interface TransferStockInput {
+  productId: string;
+  fromWarehouseId: string;
+  toWarehouseId: string;
+  quantity: number;
+}
+
+
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 
@@ -107,7 +123,9 @@ export interface UpdatePOStatusInput {
 }
 
 export interface ReceiveStockInput {
-  items: { itemId: string; quantityReceived: number; damagedCount?: number; qualityNotes?: string }[];
+  items: {
+    warehouseId: boolean; itemId: string; quantityReceived: number; damagedCount?: number; qualityNotes?: string 
+}[];
 }
 
 // ─── Sales ────────────────────────────────────────────────────────────────────
