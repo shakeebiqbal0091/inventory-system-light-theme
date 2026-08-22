@@ -124,8 +124,12 @@ export interface UpdatePOStatusInput {
 
 export interface ReceiveStockInput {
   items: {
-    warehouseId: boolean; itemId: string; quantityReceived: number; damagedCount?: number; qualityNotes?: string 
-}[];
+    itemId: string;
+    quantityReceived: number;
+    damagedCount?: number;
+    qualityNotes?: string;
+    warehouseId?: string;
+  }[];
 }
 
 // ─── Sales ────────────────────────────────────────────────────────────────────
