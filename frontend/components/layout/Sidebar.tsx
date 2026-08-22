@@ -143,6 +143,7 @@ import {
   Truck,
   Warehouse,
   MapPin,
+  BarChart3,
 } from 'lucide-react';
 
 import clsx from 'clsx';
@@ -191,6 +192,11 @@ const navItems = [
     href: '/stock-locations',
     label: 'Stock by Location',
     icon: MapPin,
+  },
+  {
+    href: '/reports',
+    label: 'Reports & Analytics',
+    icon: BarChart3,
   },
 ];
 
