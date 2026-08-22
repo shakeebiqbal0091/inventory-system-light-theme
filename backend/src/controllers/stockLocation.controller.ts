@@ -21,7 +21,7 @@ export const getByWarehouse = async (req: Request, res: Response): Promise<void>
 
 export const transfer = async (req: Request, res: Response): Promise<void> => {
   try {
-    await StockLocationService.transferStock(req.body);
+    await StockLocationService.transferStock(req.body, req.user?.userId);
     res.json({ success: true, message: 'Stock transferred.' });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });

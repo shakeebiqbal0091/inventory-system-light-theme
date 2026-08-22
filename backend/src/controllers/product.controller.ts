@@ -45,7 +45,7 @@ export const create = async (req: Request, res: Response): Promise<void> => {
 // PUT /products/:id  (Admin only)
 export const update = async (req: Request, res: Response): Promise<void> => {
   try {
-    const product = await ProductService.updateProduct(req.params.id, req.body);
+    const product = await ProductService.updateProduct(req.params.id, req.body, req.user?.userId);
     res.status(200).json({ success: true, data: product, message: 'Product updated.' });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });

@@ -15,7 +15,7 @@ export const getAll = async (_req: Request, res: Response): Promise<void> => {
 // POST /sales
 export const create = async (req: Request, res: Response): Promise<void> => {
   try {
-    const result = await SaleService.createSale(req.body);
+    const result = await SaleService.createSale(req.body, req.user?.userId);
     res.status(201).json({
       success: true,
       data: result,

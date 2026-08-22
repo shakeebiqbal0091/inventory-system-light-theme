@@ -43,7 +43,7 @@ export const updateStatus = async (req: Request, res: Response): Promise<void> =
 
 export const receive = async (req: Request, res: Response): Promise<void> => {
   try {
-    const order = await PurchaseOrderService.receiveStock(req.params.id, req.body);
+    const order = await PurchaseOrderService.receiveStock(req.params.id, req.body, req.user?.userId);
     res.json({ success: true, data: order, message: 'Stock received.' });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });
