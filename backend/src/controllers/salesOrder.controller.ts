@@ -25,7 +25,7 @@ export const getOne = async (req: Request, res: Response): Promise<void> => {
 
 export const create = async (req: Request, res: Response): Promise<void> => {
   try {
-    const order = await SalesOrderService.createSalesOrder(req.body);
+    const order = await SalesOrderService.createSalesOrder(req.body, req.user?.userId);
     res.status(201).json({ success: true, data: order, message: 'Sales order created.' });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });
@@ -52,7 +52,7 @@ export const shipOrder = async (req: Request, res: Response): Promise<void> => {
 
 export const createReturn = async (req: Request, res: Response): Promise<void> => {
   try {
-    const returnRecord = await SalesOrderService.createReturn(req.params.id, req.body);
+    const returnRecord = await SalesOrderService.createReturn(req.params.id, req.body, req.user?.userId);
     res.status(201).json({ success: true, data: returnRecord, message: 'Return recorded.' });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });

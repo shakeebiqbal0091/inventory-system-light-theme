@@ -20,6 +20,7 @@ model User {
   name      String
   email     String   @unique
   password  String
+  stockMovements StockMovement[]
   role      Role     @default(STAFF)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -81,6 +82,7 @@ model Product {
   supplier          String?
   description       String?
   stockLocations StockLocation[]
+  stockMovements StockMovement[]
   purchaseOrderItems  PurchaseOrderItem[]   // ← add
   lastAlertedAt     DateTime? // ← added: null = no active alert, set = alert already sent
   createdAt         DateTime  @default(now())
@@ -258,4 +260,28 @@ model StockLocation {
 
   @@unique([productId, warehouseId])
   @@map("stock_locations")
+}
+
+
+enum MovementType {
+  SALE
+  PURCHASE_RECEIPT
+  TRANSFER_OUT
+  TRANSFER_IN
+  RETURN_RESTOCK
+  MANUAL_ADJUSTMENT
+}
+
+model StockMovement {
+  id        String       @id @default(cuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type      MovementType
+  quantity  Int
+  userId    String?
+  user      User?        @relation(fields: [userId], references: [id])
+  note      String?
+  createdAt DateTime     @default(now())
+
+  @@map("stock_movements")
 }

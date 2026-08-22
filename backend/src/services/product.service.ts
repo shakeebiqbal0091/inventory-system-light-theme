@@ -60,14 +60,18 @@ export const createProduct = async (input: CreateProductInput) => {
 // ─── Update Product ───────────────────────────────────────────────────────────
 
 import { checkAndAlertForProduct } from './alert.service';   // ← add import
+import { recordMovement } from './stockMovement.service';
 
-export const updateProduct = async (id: string, input: UpdateProductInput) => {
+export const updateProduct = async (id: string, input: UpdateProductInput, userId?: string) => {
   const existing = await prisma.product.findUnique({ where: { id } });
   if (!existing) throw new Error('Product not found.');
 
-  const product = await prisma.product.update({
-    where: { id },
-    data: input,
+  const product = await prisma.$transaction(async (tx) => {
+    const updated = await tx.product.update({ where: { id }, data: input });
+    if (input.quantity !== undefined && input.quantity !== existing.quantity) {
+      await recordMovement(tx, id, 'MANUAL_ADJUSTMENT', input.quantity - existing.quantity, userId, 'Manual product edit');
+    }
+    return updated;
   });
 
   if (input.quantity !== undefined) {

@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { CreateSaleInput } from '../types';
 import { checkAndAlertForProduct } from './alert.service';
+import { recordMovement } from './stockMovement.service';   // ← add to imports
 
 const round = (n: number) => Math.round(n * 100) / 100;
 
@@ -15,7 +16,7 @@ export const getAllSales = async () => {
 
 // ─── Create Sale (atomic: deduct stock + calculate profit) ────────────────────
 
-export const createSale = async (input: CreateSaleInput) => {
+export const createSale = async (input: CreateSaleInput, userId?: string) => {
   const { productId, quantity } = input;
 
   const result = await prisma.$transaction(async (tx) => {
@@ -41,6 +42,7 @@ export const createSale = async (input: CreateSaleInput) => {
       data: { productId, quantity, totalPrice, totalCost, profit },
       include: { product: { select: { id: true, name: true, category: true } } },
     });
+    await recordMovement(tx, productId, 'SALE', quantity, userId, `Sale #${sale.id}`);
 
     return { sale, updatedProduct };
   });

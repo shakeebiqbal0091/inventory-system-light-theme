@@ -16,7 +16,7 @@ import purchaseOrderRoutes from './routes/purchaseOrder.routes';
 import salesOrderRoutes from './routes/salesOrder.routes';   // ← add with other imports
 import warehouseRoutes from './routes/warehouse.routes';
 import stockLocationRoutes from './routes/stockLocation.routes';
-
+import reportRoutes from './routes/report.routes';
 
 dotenv.config();
 
@@ -65,6 +65,7 @@ app.use('/api/purchase-orders', apiLimiter, purchaseOrderRoutes);
 app.use('/api/sales-orders', apiLimiter, salesOrderRoutes);   // ← add with other app.use lines
 app.use('/api/warehouses', apiLimiter, warehouseRoutes);
 app.use('/api/stock-locations', apiLimiter, stockLocationRoutes);
+app.use('/api/reports', apiLimiter, reportRoutes);
 
 
 // ─── Health Check ─────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import { prisma } from '../prisma';
 import { CreatePurchaseOrderInput, ReceiveStockInput } from '../types';
 import { checkAndAlertForProduct } from './alert.service';
 import { incrementStockLocation } from './stockLocation.service';   // ← added
+import { recordMovement } from './stockMovement.service';   // ← add to imports
 
 const generatePoNumber = async () => {
   const count = await prisma.purchaseOrder.count();
@@ -60,7 +61,7 @@ export const updateStatus = async (id: string, status: 'SENT' | 'CANCELLED') => 
 };
 
 // ─── Receive Stock (atomic: update items + increment product stock) ───────────
-export const receiveStock = async (id: string, input: ReceiveStockInput) => {
+export const receiveStock = async (id: string, input: ReceiveStockInput, userId?: string) => {
   const result = await prisma.$transaction(async (tx) => {
     const po = await tx.purchaseOrder.findUnique({ where: { id }, include: { items: true } });
     if (!po) throw new Error('Purchase order not found.');
@@ -93,6 +94,7 @@ export const receiveStock = async (id: string, input: ReceiveStockInput) => {
           data: { quantity: { increment: goodQty } },
         });
         touchedProductIds.push(item.productId);
+        await recordMovement(tx, item.productId, 'PURCHASE_RECEIPT', goodQty, userId, `PO ${po.poNumber}`);
       }
 
       if (goodQty > 0 && incoming.warehouseId) {

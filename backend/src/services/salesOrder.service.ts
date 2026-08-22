@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { CreateSalesOrderInput, CreateShipmentInput, CreateReturnInput } from '../types';
 import { checkAndAlertForProduct } from './alert.service';
+import { recordMovement } from './stockMovement.service';   // ← add to imports
 
 const generateOrderNumber = async () => {
   const count = await prisma.salesOrder.count();
@@ -31,7 +32,7 @@ export const getSalesOrderById = async (id: string) => {
 };
 
 // ─── Create Sales Order (atomic: one transaction covers every line item) ──────
-export const createSalesOrder = async (input: CreateSalesOrderInput) => {
+export const createSalesOrder = async (input: CreateSalesOrderInput, userId?: string) => {
   const orderNumber = await generateOrderNumber();
 
   const result = await prisma.$transaction(async (tx) => {
@@ -50,6 +51,7 @@ export const createSalesOrder = async (input: CreateSalesOrderInput) => {
     for (const item of input.items) {
       const product = await tx.product.findUnique({ where: { id: item.productId } });
       if (!product) throw new Error(`Product ${item.productId} not found.`);
+      await recordMovement(tx, item.productId, 'SALE', item.quantity, userId, `Sales Order ${orderNumber}`);
 
       const updateResult = await tx.product.updateMany({
         where: { id: item.productId, quantity: { gte: item.quantity } },
@@ -125,7 +127,7 @@ export const createShipment = async (salesOrderId: string, input: CreateShipment
 };
 
 // ─── Return / RMA ───────────────────────────────────────────────────────────────
-export const createReturn = async (salesOrderId: string, input: CreateReturnInput) => {
+export const createReturn = async (salesOrderId: string, input: CreateReturnInput, userId?: string) => {
   const order = await prisma.salesOrder.findUnique({ where: { id: salesOrderId }, include: { sales: true } });
   if (!order) throw new Error('Sales order not found.');
 
@@ -155,6 +157,7 @@ export const createReturn = async (salesOrderId: string, input: CreateReturnInpu
         data: { quantity: { increment: input.quantity } },
       });
       touchedProductId = sale.productId;
+      await recordMovement(tx, sale.productId, 'RETURN_RESTOCK', input.quantity, userId, `Return on ${order.orderNumber}`);
     }
 
     return { returnRecord, touchedProductId };

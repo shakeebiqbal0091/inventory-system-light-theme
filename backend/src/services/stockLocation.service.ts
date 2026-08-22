@@ -1,5 +1,6 @@
 import { prisma } from '../prisma';
 import { TransferStockInput } from '../types';
+import { recordMovement } from './stockMovement.service';   // ← add to imports
 
 export const getStockByProduct = async (productId: string) => {
   return prisma.stockLocation.findMany({
@@ -28,7 +29,7 @@ export const incrementStockLocation = async (
 };
 
 // ─── Transfer stock between warehouses (atomic, does not change total) ────────
-export const transferStock = async (input: TransferStockInput) => {
+export const transferStock = async (input: TransferStockInput, userId?: string) => {
   const { productId, fromWarehouseId, toWarehouseId, quantity } = input;
 
   return prisma.$transaction(async (tx) => {
@@ -48,5 +49,7 @@ export const transferStock = async (input: TransferStockInput) => {
     });
 
     return { success: true };
+    await recordMovement(tx, productId, 'TRANSFER_OUT', quantity, userId, `To warehouse ${toWarehouseId}`);
+    await recordMovement(tx, productId, 'TRANSFER_IN', quantity, userId, `From warehouse ${fromWarehouseId}`);
   });
 };
