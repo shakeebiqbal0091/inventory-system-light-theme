@@ -29,7 +29,37 @@ export interface ApiResponse<T = unknown> {
   error?: string;
 }
 
+// ─── CreateSalesOrderInput ─────────────────────────────────────────────────────────────────
+
+export interface CreateSalesOrderInput {
+  customerId?: string;
+  channel?: 'ONLINE' | 'IN_STORE' | 'WHOLESALE';
+  notes?: string;
+  items: { productId: string; quantity: number }[];
+}
+
+export interface UpdateOrderStatusInput {
+  status: 'PACKING' | 'SHIPPED' | 'CANCELLED';
+}
+
+export interface CreateShipmentInput {
+  carrierName?: string;
+  trackingNumber?: string;
+  shipDate?: string;
+  packingSlipNotes?: string;
+}
+
+export interface CreateReturnInput {
+  saleId?: string;
+  reason: string;
+  disposition?: 'RESTOCK' | 'WRITE_OFF';
+  quantity: number;
+}
+
+
 // ─── Products ─────────────────────────────────────────────────────────────────
+
+
 
 export interface CreateProductInput {
   name: string;

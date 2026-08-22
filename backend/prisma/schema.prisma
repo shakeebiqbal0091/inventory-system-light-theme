@@ -102,7 +102,9 @@ model Sale {
   totalCost  Float    @default(0) // cost price × qty
   profit     Float    @default(0) // totalPrice − totalCost
   createdAt  DateTime @default(now())
-
+  salesOrderId String?
+  salesOrder   SalesOrder? @relation(fields: [salesOrderId], references: [id])
+  returns      Return[]
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("sales")
@@ -136,7 +138,7 @@ model Customer {
   billingAddress  String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-
+  salesOrders SalesOrder[]
   @@map("customers")
 }
 
@@ -163,4 +165,68 @@ model UserSettings {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_settings")
+}
+
+enum OrderChannel {
+  ONLINE
+  IN_STORE
+  WHOLESALE
+}
+
+enum OrderStatus {
+  PENDING
+  PACKING
+  SHIPPED
+  CANCELLED
+}
+
+enum ReturnDisposition {
+  RESTOCK
+  WRITE_OFF
+}
+
+model SalesOrder {
+  id          String       @id @default(cuid())
+  orderNumber String       @unique
+  customerId  String?
+  customer    Customer?    @relation(fields: [customerId], references: [id])
+  channel     OrderChannel @default(IN_STORE)
+  status      OrderStatus  @default(PENDING)
+  orderDate   DateTime     @default(now())
+  notes       String?
+  sales       Sale[]
+  shipment    Shipment?
+  returns     Return[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("sales_orders")
+}
+
+model Shipment {
+  id               String     @id @default(cuid())
+  salesOrderId     String     @unique
+  salesOrder       SalesOrder @relation(fields: [salesOrderId], references: [id])
+  carrierName      String?
+  trackingNumber   String?
+  shipDate         DateTime?
+  packingSlipNotes String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@map("shipments")
+}
+
+model Return {
+  id           String             @id @default(cuid())
+  salesOrderId String
+  salesOrder   SalesOrder         @relation(fields: [salesOrderId], references: [id])
+  saleId       String?
+  sale         Sale?              @relation(fields: [saleId], references: [id])
+  reason       String
+  disposition  ReturnDisposition  @default(RESTOCK)
+  quantity     Int
+  createdAt    DateTime           @default(now())
+
+  @@map("returns")
 }
