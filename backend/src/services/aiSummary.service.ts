@@ -10,9 +10,8 @@ const round = (n: number) => Math.round(n * 100) / 100;
 const gatherWeeklyData = async () => {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [sales, lowStockCount, newPOs, receivedPOs] = await Promise.all([
+  const [sales, newPOs, receivedPOs] = await Promise.all([
     prisma.sale.findMany({ where: { createdAt: { gte: since } }, include: { product: true } }),
-    prisma.product.count({ where: { quantity: { lte: prisma.product.fields.lowStockThreshold } } }).catch(() => 0),
     prisma.purchaseOrder.count({ where: { orderDate: { gte: since } } }),
     prisma.purchaseOrder.count({ where: { status: 'COMPLETED', updatedAt: { gte: since } } }),
   ]);
