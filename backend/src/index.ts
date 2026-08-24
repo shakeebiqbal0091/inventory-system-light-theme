@@ -19,6 +19,7 @@ import stockLocationRoutes from './routes/stockLocation.routes';
 import reportRoutes from './routes/report.routes';
 import aiSummaryRoutes from './routes/aiSummary.routes';
 import { startWeeklySummaryJob } from './jobs/weeklySummary.job';
+import aiAssistantRoutes from './routes/aiAssistant.routes';
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ app.use('/api/warehouses', apiLimiter, warehouseRoutes);
 app.use('/api/stock-locations', apiLimiter, stockLocationRoutes);
 app.use('/api/reports', apiLimiter, reportRoutes);
 app.use('/api/ai-summary', apiLimiter, aiSummaryRoutes);
+app.use('/api/assistant', apiLimiter, aiAssistantRoutes);
 
 
 // ─── Health Check ─────────────────────────────────────────────────────────────

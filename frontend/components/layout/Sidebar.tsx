@@ -144,6 +144,7 @@ import {
   Warehouse,
   MapPin,
   BarChart3,
+  Bot,
 } from 'lucide-react';
 
 import clsx from 'clsx';
@@ -198,6 +199,9 @@ const navItems = [
     label: 'Reports & Analytics',
     icon: BarChart3,
   },
+  { href: '/assistant',
+    label: 'AI Assistant',
+    icon: Bot },
 ];
 
 export default function Sidebar() {
