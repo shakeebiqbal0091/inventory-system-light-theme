@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as ReportService from '../services/report.service';
+import { getReorderSuggestions } from '../services/forecast.service'; 
 
 export const stockMovements = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -9,6 +10,7 @@ export const stockMovements = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 export const salesTurnover = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -23,6 +25,15 @@ export const salesTurnover = async (req: Request, res: Response): Promise<void> 
 export const valuation = async (req: Request, res: Response): Promise<void> => {
   try {
     const data = await ReportService.getInventoryValuation();
+    res.json({ success: true, data });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const reorderSuggestions = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const data = await getReorderSuggestions();
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });

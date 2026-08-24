@@ -29,8 +29,9 @@ export default function AssistantPage() {
       });
       setMessages([...next, { role: 'assistant', content: res.data.data.reply }]);
     } catch (err: any) {
-      setMessages([...next, { role: 'assistant', content: "Sorry, I couldn't process that. Please try again." }]);
-    } finally { setSending(false); }
+        const detail = err.response?.data?.error ?? err.message ?? 'Unknown error';
+        setMessages([...next, { role: 'assistant', content: `Sorry, something went wrong: ${detail}` }]);
+      } finally { setSending(false); }
   };
 
   return (

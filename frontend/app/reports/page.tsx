@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import api from '@/lib/api';
-import { Activity, TrendingUp, Wallet, Info } from 'lucide-react';
+import { Activity, TrendingUp, Wallet, Info, Repeat } from 'lucide-react';   // ← add Repeat
+
 
 interface Movement {
   id: string; type: string; quantity: number; note?: string; createdAt: string;
@@ -20,6 +21,16 @@ interface ValuationRow {
 }
 interface ValuationData { products: ValuationRow[]; totals: { fifo: number; lifo: number; weightedAverage: number }; }
 
+const [reorder, setReorder] = useState<ReorderData | null>(null);
+
+interface ReorderSuggestion {
+  productId: string; name: string; currentStock: number; avgDailySales: number;
+  daysUntilStockout: number; leadTimeDays: number; supplierName: string | null;
+  suggestedReorderQty: number; urgency: 'critical' | 'warning' | 'ok';
+}
+interface ReorderData { windowDays: number; suggestions: ReorderSuggestion[]; noRecentSales: { productId: string; name: string; currentStock: number }[]; }
+
+
 const TYPE_BADGE: Record<string, string> = {
   SALE: 'badge-info',
   PURCHASE_RECEIPT: 'badge-success',
@@ -33,6 +44,7 @@ const TABS = [
   { key: 'movements', label: 'Stock Movements', icon: Activity },
   { key: 'turnover', label: 'Sales & Turnover', icon: TrendingUp },
   { key: 'valuation', label: 'Valuation', icon: Wallet },
+  { key: 'reorder', label: 'Reorder Suggestions', icon: Repeat },   // ← added
 ] as const;
 
 export default function ReportsPage() {
@@ -48,6 +60,7 @@ export default function ReportsPage() {
       api.get('/reports/stock-movements').then(r => setMovements(r.data.data)),
       api.get('/reports/sales-turnover').then(r => setTurnover(r.data.data)),
       api.get('/reports/valuation').then(r => setValuation(r.data.data)),
+      api.get('/reports/reorder-suggestions').then(r => setReorder(r.data.data)),
     ]).catch(console.error).finally(() => setLoading(false));
   }, []);
 
@@ -254,6 +267,57 @@ function ValuationTab({ data }: { data: ValuationData }) {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+const URGENCY_BADGE: Record<string, string> = { critical: 'badge-danger', warning: 'badge-warning', ok: 'badge-success' };
+
+function ReorderTab({ data }: { data: ReorderData }) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start gap-2 px-4 py-3 rounded-lg text-sm"
+        style={{ backgroundColor: 'rgba(91,61,240,0.06)', border: '1px solid rgba(91,61,240,0.2)', color: 'var(--text-muted)' }}>
+        <Repeat className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} />
+        <span>Based on average daily sales over the last {data.windowDays} days. Suggestions cover {data.windowDays} days of projected demand.</span>
+      </div>
+
+      <div className="card p-0 overflow-hidden">
+        {data.suggestions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-40" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-sm">No products with enough sales history to forecast yet.</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs uppercase tracking-wider" style={{ borderBottom: '1px solid var(--bg-border)', color: 'var(--text-muted)' }}>
+                {['Product', 'Stock', 'Avg Daily Sales', 'Days Left', 'Supplier', 'Suggested Reorder', 'Urgency'].map(h => (
+                  <th key={h} className="text-left px-5 py-3">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.suggestions.map(s => (
+                <tr key={s.productId} style={{ borderBottom: '1px solid var(--bg-border)' }}>
+                  <td className="px-5 py-3.5 font-medium" style={{ color: 'var(--text-primary)' }}>{s.name}</td>
+                  <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{s.currentStock}</td>
+                  <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{s.avgDailySales}/day</td>
+                  <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{s.daysUntilStockout}</td>
+                  <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{s.supplierName ?? 'None assigned'}</td>
+                  <td className="px-5 py-3.5 font-medium" style={{ color: 'var(--accent)' }}>{s.suggestedReorderQty} units</td>
+                  <td className="px-5 py-3.5"><span className={URGENCY_BADGE[s.urgency]}>{s.urgency}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {data.noRecentSales.length > 0 && (
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          {data.noRecentSales.length} product(s) have no sales in the last {data.windowDays} days and aren't forecasted: {data.noRecentSales.map(p => p.name).join(', ')}
+        </p>
+      )}
     </div>
   );
 }

@@ -8,5 +8,6 @@ router.use(authenticate);
 router.get('/stock-movements', ReportController.stockMovements);
 router.get('/sales-turnover', ReportController.salesTurnover);
 router.get('/valuation', ReportController.valuation);
+router.get('/reorder-suggestions', ReportController.reorderSuggestions);
 
 export default router;
