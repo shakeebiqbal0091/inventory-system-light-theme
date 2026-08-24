@@ -21,7 +21,7 @@ interface ValuationRow {
 }
 interface ValuationData { products: ValuationRow[]; totals: { fifo: number; lifo: number; weightedAverage: number }; }
 
-const [reorder, setReorder] = useState<ReorderData | null>(null);
+// const [reorder, setReorder] = useState<ReorderData | null>(null);
 
 interface ReorderSuggestion {
   productId: string; name: string; currentStock: number; avgDailySales: number;
@@ -53,6 +53,7 @@ export default function ReportsPage() {
   const [turnover, setTurnover] = useState<TurnoverData | null>(null);
   const [valuation, setValuation] = useState<ValuationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reorder, setReorder] = useState<ReorderData | null>(null);
 
   useEffect(() => {
     setLoading(true);
