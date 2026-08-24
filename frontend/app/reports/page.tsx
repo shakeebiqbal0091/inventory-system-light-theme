@@ -90,6 +90,7 @@ export default function ReportsPage() {
           {tab === 'movements' && <MovementsTab movements={movements} />}
           {tab === 'turnover' && turnover && <TurnoverTab data={turnover} />}
           {tab === 'valuation' && valuation && <ValuationTab data={valuation} />}
+          {tab === 'reorder' && reorder && <ReorderTab data={reorder} />}
         </>
       )}
     </AppLayout>
