@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import api from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { ArrowRightLeft, MapPin, X } from 'lucide-react';
+import { ArrowRightLeft, MapPin, Plus, X } from 'lucide-react';
 
 interface Product { id: string; name: string; quantity: number; }
 interface Warehouse { id: string; name: string; }
@@ -23,7 +23,7 @@ export default function StockLocationsPage() {
     Promise.all([
       api.get('/products').then(r => setProducts(r.data.data)),
       api.get('/warehouses').then(r => setWarehouses(r.data.data)),
-    ]).then(([, ]) => {
+    ]).then(([,]) => {
       // pick a default selected product once products are loaded
     }).catch(console.error).finally(() => setLoading(false));
   }, []);
@@ -42,6 +42,10 @@ export default function StockLocationsPage() {
   const allocatedTotal = stock.reduce((sum, s) => sum + s.quantity, 0);
   const unallocated = (selectedProduct?.quantity ?? 0) - allocatedTotal;
 
+  function setShowAllocate(arg0: boolean): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <AppLayout>
       <div className="flex items-center justify-between mb-5">
@@ -54,7 +58,13 @@ export default function StockLocationsPage() {
             <ArrowRightLeft className="w-4 h-4" /> Transfer Stock
           </button>
         )}
+        {isAdmin && unallocated > 0 && (
+          <button onClick={() => setShowAllocate(true)} className="btn-secondary flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Allocate to Warehouse
+          </button>
+        )}
       </div>
+
 
       <div className="mb-5 max-w-sm">
         <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-muted)' }}>Product</label>
@@ -110,9 +120,20 @@ export default function StockLocationsPage() {
           onTransferred={() => { setShowTransfer(false); fetchStock(); }}
         />
       )}
+      {showAllocate && selectedProduct && (
+        <AllocateModal
+          product={selectedProduct}
+          warehouses={warehouses}
+          maxQuantity={unallocated}
+          onClose={() => setShowAllocate(false)}
+          onAllocated={() => { setShowAllocate(false); fetchStock(); }}
+        />
+      )}
+
     </AppLayout>
   );
 }
+
 
 function TransferModal({ product, warehouses, stock, onClose, onTransferred }: {
   product: Product; warehouses: Warehouse[]; stock: StockRow[];

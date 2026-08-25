@@ -15,3 +15,9 @@ export const transferStockSchema = z.object({
   message: 'Source and destination warehouses must be different.',
   path: ['toWarehouseId'],
 });
+
+export const allocateStockSchema = z.object({
+  productId: z.string().min(1),
+  warehouseId: z.string().min(1),
+  quantity: z.coerce.number().int().positive('Quantity must be greater than 0.'),
+});

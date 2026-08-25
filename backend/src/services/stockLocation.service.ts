@@ -16,6 +16,26 @@ export const getStockByWarehouse = async (warehouseId: string) => {
   });
 };
 
+export const allocateStock = async (productId: string, warehouseId: string, quantity: number) => {
+  const product = await prisma.product.findUnique({ where: { id: productId } });
+  if (!product) throw new Error('Product not found.');
+
+  const existingAllocations = await prisma.stockLocation.findMany({ where: { productId } });
+  const alreadyAllocated = existingAllocations.reduce((sum, s) => sum + s.quantity, 0);
+  const unallocated = product.quantity - alreadyAllocated;
+
+  if (quantity > unallocated) {
+    throw new Error(`Only ${unallocated} unit(s) of "${product.name}" are unallocated. Cannot assign ${quantity}.`);
+  }
+
+  return prisma.stockLocation.upsert({
+    where: { productId_warehouseId: { productId, warehouseId } },
+    create: { productId, warehouseId, quantity },
+    update: { quantity: { increment: quantity } },
+  });
+};
+
+
 // Used internally by PO receiving — additive, does not touch Product.quantity
 // (that increment already happens in purchaseOrder.service.ts)
 export const incrementStockLocation = async (

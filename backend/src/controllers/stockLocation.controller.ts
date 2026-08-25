@@ -27,3 +27,12 @@ export const transfer = async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
+export const allocate = async (req: Request, res: Response): Promise<void> => {
+  try {
+    await StockLocationService.allocateStock(req.body.productId, req.body.warehouseId, req.body.quantity);
+    res.json({ success: true, message: 'Stock allocated to warehouse.' });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
