@@ -16,6 +16,7 @@ export default function StockLocationsPage() {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [stock, setStock] = useState<StockRow[]>([]);
+  const [showAllocate, setShowAllocate] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showTransfer, setShowTransfer] = useState(false);
 
@@ -42,9 +43,6 @@ export default function StockLocationsPage() {
   const allocatedTotal = stock.reduce((sum, s) => sum + s.quantity, 0);
   const unallocated = (selectedProduct?.quantity ?? 0) - allocatedTotal;
 
-  function setShowAllocate(arg0: boolean): void {
-    throw new Error('Function not implemented.');
-  }
 
   return (
     <AppLayout>
@@ -120,7 +118,7 @@ export default function StockLocationsPage() {
           onTransferred={() => { setShowTransfer(false); fetchStock(); }}
         />
       )}
-      {showAllocate && selectedProduct && (
+      {/* {showAllocate && selectedProduct && (
         <AllocateModal
           product={selectedProduct}
           warehouses={warehouses}
@@ -128,7 +126,7 @@ export default function StockLocationsPage() {
           onClose={() => setShowAllocate(false)}
           onAllocated={() => { setShowAllocate(false); fetchStock(); }}
         />
-      )}
+      )} */}
 
     </AppLayout>
   );
