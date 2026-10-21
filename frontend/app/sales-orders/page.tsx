@@ -11,15 +11,23 @@ interface SaleLine {
   id: string; productId: string; product: { id: string; name: string };
   quantity: number; totalPrice: number;
 }
+interface SalesOrderItem {
+  productId?: string | null; productName: string; quantity: number;
+  unitPrice: number; totalPrice: number;
+}
 interface SalesOrder {
   id: string; orderNumber: string; status: string; channel: string; orderDate: string;
   notes?: string; customer?: { id: string; name: string; company?: string };
-  sales: SaleLine[];
+  customerName?: string | null; whatsappNumber?: string | null;
+  sales: SaleLine[]; items?: SalesOrderItem[];
   shipment?: { carrierName?: string; trackingNumber?: string; shipDate?: string };
 }
 
 const STATUS_BADGE: Record<string, string> = {
   PENDING: 'badge-info',
+  PENDING_REVIEW: 'badge-warning',
+  CONFIRMED: 'badge-success',
+  REJECTED: 'badge-danger',
   PACKING: 'badge-warning',
   SHIPPED: 'badge-success',
   CANCELLED: 'badge-danger',
@@ -34,6 +42,8 @@ export default function SalesOrdersPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showShip, setShowShip] = useState<SalesOrder | null>(null);
   const [showReturn, setShowReturn] = useState<SalesOrder | null>(null);
+  const [reviewingOrderId, setReviewingOrderId] = useState<string | null>(null);
+  const [reviewError, setReviewError] = useState('');
 
   const fetchAll = () => {
     setLoading(true);
@@ -50,6 +60,22 @@ export default function SalesOrdersPage() {
     catch (err: any) { alert(err.response?.data?.error ?? 'Failed to update status.'); }
   };
 
+  const decideWhatsAppOrder = async (
+    id: string,
+    decision: 'confirm' | 'reject'
+  ) => {
+    setReviewError('');
+    setReviewingOrderId(id);
+    try {
+      await api.post(`/sales-orders/${id}/${decision}`);
+      fetchAll();
+    } catch {
+      setReviewError(`Unable to ${decision} this WhatsApp order. Please try again.`);
+    } finally {
+      setReviewingOrderId(null);
+    }
+  };
+
   return (
     <AppLayout>
       <div className="flex items-center justify-between mb-5">
@@ -61,6 +87,12 @@ export default function SalesOrdersPage() {
           <Plus className="w-4 h-4" /> New Sales Order
         </button>
       </div>
+
+      {reviewError && (
+        <p className="mb-4 text-sm" role="alert" style={{ color: 'var(--danger)' }}>
+          {reviewError}
+        </p>
+      )}
 
       <div className="card p-0 overflow-hidden">
         {loading ? (
@@ -87,13 +119,47 @@ export default function SalesOrdersPage() {
                 {orders.map(o => (
                   <tr key={o.id} style={{ borderBottom: '1px solid var(--bg-border)' }}>
                     <td className="px-5 py-3.5 font-medium" style={{ color: 'var(--text-primary)' }}>{o.orderNumber}</td>
-                    <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{o.customer?.name ?? 'Walk-in'}</td>
+                    <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>
+                      <div>{o.customer?.name ?? o.customerName ?? 'Walk-in'}</div>
+                      {o.whatsappNumber && (
+                        <div className="text-xs mt-1">{o.whatsappNumber}</div>
+                      )}
+                    </td>
                     <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{o.channel.replace('_', ' ')}</td>
                     <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{new Date(o.orderDate).toLocaleDateString()}</td>
-                    <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>{o.sales.length} item(s)</td>
-                    <td className="px-5 py-3.5"><span className={STATUS_BADGE[o.status]}>{o.status}</span></td>
+                    <td className="px-5 py-3.5" style={{ color: 'var(--text-muted)' }}>
+                      <div>{o.items?.length || o.sales.length} item(s)</div>
+                      {o.items && o.items.length > 0 && (
+                        <div className="mt-1 max-w-xs text-xs">
+                          {o.items.map(item => `${item.quantity} x ${item.productName}`).join(', ')}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className={STATUS_BADGE[o.status] ?? 'badge-info'}>{o.status}</span>
+                    </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-2">
+                        {o.channel === 'WHATSAPP' && o.status === 'PENDING_REVIEW' && (
+                          <>
+                            <button
+                              onClick={() => decideWhatsAppOrder(o.id, 'confirm')}
+                              disabled={reviewingOrderId !== null}
+                              className="text-xs font-medium px-2.5 py-1 rounded-lg disabled:opacity-50"
+                              style={{ color: 'var(--success)' }}
+                            >
+                              {reviewingOrderId === o.id ? 'Working...' : 'Confirm'}
+                            </button>
+                            <button
+                              onClick={() => decideWhatsAppOrder(o.id, 'reject')}
+                              disabled={reviewingOrderId !== null}
+                              className="text-xs font-medium px-2.5 py-1 rounded-lg disabled:opacity-50"
+                              style={{ color: 'var(--danger)' }}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
                         {o.status === 'PENDING' && (
                           <button onClick={() => updateStatus(o.id, 'PACKING')} className="text-xs font-medium px-2.5 py-1 rounded-lg" style={{ color: 'var(--accent)' }}>Mark Packing</button>
                         )}

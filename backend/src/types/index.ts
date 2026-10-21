@@ -38,6 +38,17 @@ export interface CreateSalesOrderInput {
   items: { productId: string; quantity: number }[];
 }
 
+export interface CreateWhatsAppOrderInput {
+  customerName: string;
+  whatsappNumber: string;
+  shippingAddress?: string;
+  notes?: string;
+  items: {
+    productId: string;
+    quantity: number;
+  }[];
+}
+
 export interface UpdateOrderStatusInput {
   status: 'PACKING' | 'SHIPPED' | 'CANCELLED';
 }

@@ -17,7 +17,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Redirect to login on 401
 api.interceptors.response.use(
   (res) => res,
   (error) => {
@@ -26,6 +25,7 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+
     return Promise.reject(error);
   }
 );

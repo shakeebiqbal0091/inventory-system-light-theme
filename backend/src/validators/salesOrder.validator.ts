@@ -29,3 +29,18 @@ export const createReturnSchema = z.object({
   disposition: z.enum(['RESTOCK', 'WRITE_OFF']).optional(),
   quantity: z.coerce.number().int().positive('Quantity must be greater than 0.'),
 });
+
+export const createWhatsAppOrderSchema = z.object({
+providerEventId: z.string().trim().min(1),
+eventType: z.string().trim().min(1),
+customerName: z.string().trim().min(1).max(150),
+whatsappNumber: z.string().trim().min(5).max(30),
+shippingAddress: z.string().trim().max(500).optional(),
+notes: z.string().trim().max(1000).optional(),
+items: z.array(
+z.object({
+productId: z.string().trim().min(1),
+quantity: z.coerce.number().int().positive().max(10000),
+})
+).min(1).max(100),
+});

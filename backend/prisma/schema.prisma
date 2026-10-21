@@ -91,6 +91,7 @@ model Product {
   supplierRef       Supplier? @relation(fields: [supplierId], references: [id])
 
   sales Sale[]
+  salesOrderItems SalesOrderItem[]
 
   @@map("products")
 }
@@ -142,6 +143,7 @@ model Customer {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   salesOrders SalesOrder[]
+
   @@map("customers")
 }
 
@@ -174,13 +176,23 @@ enum OrderChannel {
   ONLINE
   IN_STORE
   WHOLESALE
+  WHATSAPP
 }
 
 enum OrderStatus {
   PENDING
+  PENDING_REVIEW
+  CONFIRMED
+  REJECTED
   PACKING
   SHIPPED
   CANCELLED
+}
+
+enum WhatsAppMessageStatus {
+  PENDING
+  SENT
+  FAILED
 }
 
 enum ReturnDisposition {
@@ -198,26 +210,83 @@ model SalesOrder {
   orderDate   DateTime     @default(now())
   notes       String?
   sales       Sale[]
+  items       SalesOrderItem[]
   shipment    Shipment?
   returns     Return[]
+  customerName String?
+  whatsappNumber String?
+  shippingAddress String?
+  webhookEvents WhatsAppWebhookEvent[]
+  whatsappMessages WhatsAppOutboxMessage[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@map("sales_orders")
 }
 
+model SalesOrderItem {
+  id           String     @id @default(cuid())
+  salesOrderId String
+  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName  String
+  quantity     Int
+  unitPrice    Float
+  totalPrice   Float
+  createdAt    DateTime   @default(now())
+
+  @@index([salesOrderId])
+  @@index([productId])
+  @@map("sales_order_items")
+}
+
 model Shipment {
-  id               String     @id @default(cuid())
-  salesOrderId     String     @unique
-  salesOrder       SalesOrder @relation(fields: [salesOrderId], references: [id])
-  carrierName      String?
-  trackingNumber   String?
-  shipDate         DateTime?
-  packingSlipNotes String?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  id                    String     @id @default(cuid())
+  salesOrderId          String     @unique
+  salesOrder            SalesOrder @relation(fields: [salesOrderId], references: [id])
+  carrierName           String?
+  trackingNumber        String?
+  shipDate              DateTime?
+  estimatedDeliveryDate DateTime?
+  packingSlipNotes      String?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
 
   @@map("shipments")
+}
+
+model WhatsAppWebhookEvent {
+  id              String      @id @default(cuid())
+  providerEventId String      @unique
+  eventType       String
+  salesOrderId    String?
+  salesOrder      SalesOrder? @relation(fields: [salesOrderId], references: [id], onDelete: SetNull)
+  receivedAt      DateTime    @default(now())
+  processedAt     DateTime?
+
+  @@index([salesOrderId])
+  @@map("whatsapp_webhook_events")
+}
+
+model WhatsAppOutboxMessage {
+  id               String                @id @default(cuid())
+  deduplicationKey String                @unique
+  salesOrderId     String?
+  salesOrder       SalesOrder?           @relation(fields: [salesOrderId], references: [id], onDelete: SetNull)
+  recipient        String
+  messageBody      String
+  status           WhatsAppMessageStatus @default(PENDING)
+  attempts         Int                   @default(0)
+  lastError        String?
+  scheduledAt      DateTime              @default(now())
+  sentAt           DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([salesOrderId])
+  @@map("whatsapp_outbox_messages")
 }
 
 model Return {
@@ -261,7 +330,6 @@ model StockLocation {
   @@unique([productId, warehouseId])
   @@map("stock_locations")
 }
-
 
 enum MovementType {
   SALE

@@ -1,12 +1,28 @@
 // src/controllers/product.controller.ts
 import { Request, Response } from 'express';
+import { Product } from '@prisma/client';
 import * as ProductService from '../services/product.service';
+
+const toServiceProduct = ({
+  id,
+  name,
+  price,
+  quantity,
+}: Pick<Product, 'id' | 'name' | 'price' | 'quantity'>) => ({
+  id,
+  name,
+  price,
+  quantity,
+});
 
 // GET /products
 export const getAll = async (_req: Request, res: Response): Promise<void> => {
   try {
     const products = await ProductService.getAllProducts();
-    res.status(200).json({ success: true, data: products });
+    const data = res.locals.inventoryServiceRequest
+      ? products.map(toServiceProduct)
+      : products;
+    res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -16,7 +32,10 @@ export const getAll = async (_req: Request, res: Response): Promise<void> => {
 export const getLowStock = async (_req: Request, res: Response): Promise<void> => {
   try {
     const products = await ProductService.getLowStockProducts();
-    res.status(200).json({ success: true, data: products });
+    const data = res.locals.inventoryServiceRequest
+      ? products.map(toServiceProduct)
+      : products;
+    res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -26,7 +45,10 @@ export const getLowStock = async (_req: Request, res: Response): Promise<void> =
 export const getOne = async (req: Request, res: Response): Promise<void> => {
   try {
     const product = await ProductService.getProductById(req.params.id);
-    res.status(200).json({ success: true, data: product });
+    const data = res.locals.inventoryServiceRequest
+      ? toServiceProduct(product)
+      : product;
+    res.status(200).json({ success: true, data });
   } catch (error: any) {
     res.status(404).json({ success: false, error: error.message });
   }

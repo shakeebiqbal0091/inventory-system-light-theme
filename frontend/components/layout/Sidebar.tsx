@@ -145,6 +145,7 @@ import {
   MapPin,
   BarChart3,
   Bot,
+  MessageCircle,
 } from 'lucide-react';
 
 import clsx from 'clsx';
@@ -178,6 +179,11 @@ const navItems = [
   { href: '/sales-orders',
     label: 'Sales Orders',
     icon: Package },
+  {
+    href: '/whatsapp-orders',
+    label: 'WhatsApp Orders',
+    icon: MessageCircle,
+  },
   {
     href: '/low-stock',
     label: 'Low Stock',

@@ -58,3 +58,48 @@ export const createReturn = async (req: Request, res: Response): Promise<void> =
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
+export const confirmWhatsApp = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const order = await SalesOrderService.confirmWhatsAppOrder(
+      req.params.id,
+      req.user?.userId
+    );
+
+    res.json({
+      success: true,
+      data: order,
+      message: 'WhatsApp order confirmed.',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+export const rejectWhatsApp = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const order = await SalesOrderService.rejectWhatsAppOrder(
+      req.params.id
+    );
+
+    res.json({
+      success: true,
+      data: order,
+      message: 'WhatsApp order rejected.',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};

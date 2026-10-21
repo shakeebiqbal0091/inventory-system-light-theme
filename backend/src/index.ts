@@ -20,6 +20,8 @@ import reportRoutes from './routes/report.routes';
 import aiSummaryRoutes from './routes/aiSummary.routes';
 import { startWeeklySummaryJob } from './jobs/weeklySummary.job';
 import aiAssistantRoutes from './routes/aiAssistant.routes';
+import whatsappRoutes from './routes/whatsapp.routes';
+import { startWhatsAppOutboxJob } from './jobs/whatsappOutbox.job';
 
 dotenv.config();
 
@@ -35,8 +37,19 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json());
+// app.use(express.json());
+
+app.use(
+  express.json({
+    verify: (req, _res, buf) => {
+      if (req.url === '/api/whatsapp/webhook') {
+        (req as any).rawBody = Buffer.from(buf);
+      }
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
+app.use('/api/whatsapp', whatsappRoutes);
 
 // ─── Rate Limiting ──────────────────────────────────────────────────────────── ← added block
 const authLimiter = rateLimit({
@@ -93,6 +106,7 @@ app.listen(PORT, () => {
   console.log(`🔗 Health: http://localhost:${PORT}/api/health\n`);
   startLowStockAlertJob();   // ← moved here: after env vars loaded and server is actually up
   startWeeklySummaryJob();
+  startWhatsAppOutboxJob();
 });
 
 export default app;
